@@ -1,0 +1,48 @@
+# ===========================================================================
+#  source_nema.mac -- NEMA IEC body phantom as a voxelised activity source.
+#
+#  Reads data/nema_activity.mhd, written by scripts/make_nema_phantom.py:
+#    * body      elliptical cylinder 300 x 230 x 180 mm
+#    * lung      central 50 mm cylinder, ZERO activity
+#    * spheres   6, inner diameters 10/13/17/22/28/37 mm, on a 114.4 mm circle
+#    * spheres at 2642 Bq/cm3 -- the SAME concentration as the cylinder
+#      phantom (source_cylinder.mac) -- background at 4:1, so 660.5 Bq/cm3
+#    * total 6.30 MBq, about 19% of the cylinder phantom's 33.2 MBq
+#
+#  Rebuild the map before using this if any of those change:
+#      python scripts/make_nema_phantom.py
+#
+#  setPosition is the image's LOWER CORNER, not its centre. The map is
+#  320 x 250 x 200 mm, centred on the origin in x and z but NOT in y, so
+#  the corner is
+#  (-160, -90, -100) mm; make_nema_phantom.py prints this value. The y corner is
+#  NOT -125: the NEMA outline is asymmetric about y=0, spanning -80..+150 mm.
+#
+#  No attenuating material is defined: this project's FOV is vacuum by design,
+#  so the phantom is an activity distribution only. That keeps these runs
+#  comparable to the cylinder acquisitions and leaves the existing sensitivity
+#  maps valid.
+# ===========================================================================
+
+/gate/source/addSource nema voxel
+/gate/source/nema/reader/insert image
+
+/gate/source/nema/imageReader/translator/insert linear
+/gate/source/nema/imageReader/linearTranslator/setScale 1. Bq
+/gate/source/nema/imageReader/readFile data/nema_activity.mhd
+/gate/source/nema/imageReader/verbose 0
+
+/gate/source/nema/setPosition -160. -90. -100. mm
+
+/gate/source/nema/setType backtoback
+/gate/source/nema/gps/particle gamma
+/gate/source/nema/gps/ene/type Mono
+/gate/source/nema/gps/ene/mono 0.511 MeV
+/gate/source/nema/gps/confine NULL
+/gate/source/nema/gps/angtype iso
+/gate/source/nema/gps/mintheta 0. deg
+/gate/source/nema/gps/maxtheta 180. deg
+/gate/source/nema/gps/minphi 0. deg
+/gate/source/nema/gps/maxphi 360. deg
+
+/gate/source/list

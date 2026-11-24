@@ -1,0 +1,19 @@
+# ===========================================================================
+#  geometry_vision600.mac -- world + the vision600 detector
+#
+#  vision600.mac is used AS PROVIDED and is not modified. It only defines the
+#  scanner (its world block is commented out), so the world is set up here.
+#
+#  World is Vacuum, matching the flat-panel setup's "no attenuator" brief:
+#  the bore (r < 422 mm) is world material, so photons reach the crystals
+#  unattenuated. vision600.mac's own Air volumes are the detector shell and
+#  the rsector/module/submodule holders, which the crystals fill.
+# ===========================================================================
+/gate/geometry/setMaterialDatabase GateMaterials.db
+
+/gate/world/geometry/setXLength 2.0 m
+/gate/world/geometry/setYLength 2.0 m
+/gate/world/geometry/setZLength 2.0 m
+/gate/world/setMaterial Vacuum
+
+/control/execute macros/vision600.mac

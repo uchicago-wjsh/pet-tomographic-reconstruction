@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pet-crystal-projector"
+version = "0.1.0"
+description = "Finite-crystal PET Joseph projection and matched backprojection based on parallelproj"
+readme = "pet_projector/README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "torch>=2.0", "parallelproj>=1.10,<2"]
+
+[project.optional-dependencies]
+pytomography = ["pytomography>=3.4,<4"]
+
+[tool.setuptools.packages.find]
+include = ["pet_projector*"]
+

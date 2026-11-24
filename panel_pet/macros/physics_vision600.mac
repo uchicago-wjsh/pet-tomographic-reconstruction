@@ -1,0 +1,21 @@
+# ===========================================================================
+#  physics.mac
+#
+#  Standard EM option 4 (most accurate low-energy EM models) -- at 511 keV
+#  the relevant processes are photoelectric, Compton and Rayleigh.
+#
+#  Same cuts as the flat panel, but the crystal volume here is box4.
+#  Cuts: everything outside the crystals is Vacuum, so a coarse world cut
+#  costs nothing. Inside LSO a 1 mm electron cut is well below the range
+#  of the ~340 keV maximum Compton electron (~0.25 mm in LYSO), so all the
+#  energy is deposited locally and the summed module energy is correct.
+# ===========================================================================
+/gate/physics/addPhysicsList emstandard_opt4
+
+/gate/physics/Gamma/SetCutInRegion      world 10. mm
+/gate/physics/Electron/SetCutInRegion   world 10. mm
+/gate/physics/Positron/SetCutInRegion   world 10. mm
+
+/gate/physics/Gamma/SetCutInRegion      box4 1. mm
+/gate/physics/Electron/SetCutInRegion   box4 1. mm
+/gate/physics/Positron/SetCutInRegion   box4 1. mm

@@ -1,0 +1,48 @@
+# ===========================================================================
+#  digitizer_vision600.mac
+#
+#  The SAME readout scheme as the flat-panel sensitivity runs
+#  (macros/digitizer.mac), remapped onto this geometry:
+#
+#      hits -> adder -> readout(module) -> 10% energy resolution -> window
+#      NO timeResolution  ->  perfect timing, no TOF blurring
+#      coincidence window 10 ns
+#
+#  Two things had to change, both because the scanner is different:
+#
+#  1. SENSITIVE DETECTOR NAME. vision600.mac does /gate/box4/attachCrystalSD,
+#     so every digitizerMgr path is .../box4/... (the flat panel used
+#     .../crystal/...). Same for the sorter input: Singles_box4.
+#
+#  2. READOUT DEPTH. The flat panel is a 2-level PETscanner (level1 = module,
+#     level2 = crystal) and read out at depth 1 = the module. cylindricalPET
+#     here has FOUR levels -- rsector(box1)=1, module(box2)=2,
+#     submodule(box3)=3, crystal(box4)=4 -- so summing over "the module"
+#     means depth 2, not depth 1. Depth 1 would sum a whole 38-fold rsector.
+#
+#     NOW SET TO 3 = submodule (box3) = the physical Vision MINI-BLOCK:
+#     16.3 x 16.3 mm holding exactly 5 x 5 = 25 crystals of 3.26 mm pitch.
+#     Energy is summed over that 5x5 tile and nothing beyond it, so a photon
+#     that Compton-scatters across a mini-block boundary is split into two
+#     sub-threshold singles instead of being recovered as one 511 keV event.
+#     setDepth 2 (module, 65.2 x 32.6 mm, 200 crystals) is the wider grouping
+#     that matches the flat panel's 48 x 48 mm block.
+# ===========================================================================
+
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/insert adder
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/adder/positionPolicy energyWeightedCentroid
+
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/insert readout
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/readout/setPolicy TakeEnergyWinner
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/readout/setDepth 3
+
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/insert energyResolution
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/energyResolution/fwhm 0.10
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/energyResolution/energyOfReference 511. keV
+
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/insert energyFraming
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/energyFraming/setMin 357.7 keV
+/gate/digitizerMgr/box4/SinglesDigitizer/Singles/energyFraming/setMax 664.3 keV
+
+/gate/digitizerMgr/CoincidenceSorter/Coincidences/setInputCollection Singles_box4
+/gate/digitizerMgr/CoincidenceSorter/Coincidences/setWindow 10. ns

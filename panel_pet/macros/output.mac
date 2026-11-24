@@ -1,0 +1,20 @@
+# ===========================================================================
+#  output.mac -- ROOT output
+#
+#  Only the Coincidences tree is needed for the sensitivity calculation; it
+#  carries sourcePosX/Y/Z (the annihilation position), eventID (to separate
+#  trues from randoms) and energy for both arms. Hits and Singles are
+#  disabled because at production statistics they would dominate the disk
+#  cost by orders of magnitude.
+#
+#  To study the energy-weighted module time instead (scripts/module_time.py)
+#  re-enable the Hits tree here and run at low statistics:
+#      /gate/output/root/setRootHitFlag 1
+# ===========================================================================
+/gate/output/root/enable
+/gate/output/root/setFileName {OUT}
+/gate/output/root/setRootHitFlag          0
+/gate/output/root/setRootSinglesFlag      0
+/gate/output/root/setRootCoincidencesFlag 1
+
+/gate/output/ascii/disable

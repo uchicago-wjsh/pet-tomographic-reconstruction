@@ -1,0 +1,97 @@
+# world
+# /gate/world/geometry/setXLength 2.0 m
+# /gate/world/geometry/setYLength 2.0 m
+# /gate/world/geometry/setZLength 2.0 m
+# /gate/world/setMaterial Vacuum
+
+# cylindericalPET system
+/gate/world/daughters/name cylindricalPET
+/gate/world/daughters/insert cylinder
+/gate/cylindricalPET/geometry/setRmax   450.0    mm
+/gate/cylindricalPET/geometry/setRmin   422.0  mm
+/gate/cylindricalPET/geometry/setHeight 263.0   mm
+/gate/cylindricalPET/setMaterial Air
+/gate/cylindricalPET/vis/forceWireframe
+
+# rsector
+/gate/cylindricalPET/daughters/name box1
+/gate/cylindricalPET/daughters/insert box
+/gate/box1/geometry/setXLength  20.0  mm
+/gate/box1/geometry/setYLength   65.2 mm
+/gate/box1/geometry/setZLength  260.8 mm
+/gate/box1/placement/setTranslation 433. 0 0 mm
+#/gate/box1/placement/setTranslation 10. 0 0 mm
+/gate/box1/setMaterial Air
+/gate/box1/vis/forceWireframe
+/gate/box1/vis/setVisible   true
+
+# module
+/gate/box1/daughters/name box2
+/gate/box1/daughters/insert box
+/gate/box2/geometry/setXLength 20.0  mm
+/gate/box2/geometry/setYLength 65.2 mm
+/gate/box2/geometry/setZLength 32.6 mm
+/gate/box2/setMaterial Air
+/gate/box2/vis/forceWireframe
+/gate/box2/vis/setVisible   true
+
+# submodule
+/gate/box2/daughters/name box3
+/gate/box2/daughters/insert box
+/gate/box3/geometry/setXLength 20.0  mm
+/gate/box3/geometry/setYLength 16.3  mm
+/gate/box3/geometry/setZLength 16.3  mm
+/gate/box3/setMaterial Air
+/gate/box3/vis/forceWireframe
+/gate/box3/vis/setVisible   true
+
+# crystal
+/gate/box3/daughters/name box4
+/gate/box3/daughters/insert box
+/gate/box4/geometry/setXLength  20.0 mm
+/gate/box4/geometry/setYLength  3.20 mm
+/gate/box4/geometry/setZLength  3.20 mm
+/gate/box4/setMaterial LSO
+/gate/box4/vis/forceWireframe
+/gate/box4/vis/setVisible   true
+/gate/box4/vis/setColor     green
+
+# repeat crystal
+/gate/box4/repeaters/insert cubicArray
+/gate/box4/cubicArray/setRepeatNumberX 1
+/gate/box4/cubicArray/setRepeatNumberY 5
+/gate/box4/cubicArray/setRepeatNumberZ 5
+/gate/box4/cubicArray/setRepeatVector 0. 3.26 3.26 mm
+
+# repeat submodule
+/gate/box3/repeaters/insert cubicArray
+/gate/box3/cubicArray/setRepeatNumberX 1
+/gate/box3/cubicArray/setRepeatNumberY 4
+/gate/box3/cubicArray/setRepeatNumberZ 2
+/gate/box3/cubicArray/setRepeatVector 0. 16.3  16.3 mm
+
+# repeat module
+/gate/box2/repeaters/insert cubicArray
+/gate/box2/cubicArray/setRepeatNumberX 1
+/gate/box2/cubicArray/setRepeatNumberY 1
+/gate/box2/cubicArray/setRepeatNumberZ 8
+/gate/box2/cubicArray/setRepeatVector 0. 0. 32.6 mm
+
+# repeat rsector
+/gate/box1/repeaters/insert ring
+/gate/box1/ring/setRepeatNumber 38
+
+
+
+# attach system
+/gate/systems/cylindricalPET/rsector/attach box1
+/gate/systems/cylindricalPET/module/attach  box2
+/gate/systems/cylindricalPET/submodule/attach box3
+/gate/systems/cylindricalPET/crystal/attach box4
+
+
+# attach sensitive detector
+/gate/box4/attachCrystalSD
+
+/gate/systems/cylindricalPET/describe
+

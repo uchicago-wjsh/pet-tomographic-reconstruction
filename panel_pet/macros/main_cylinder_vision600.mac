@@ -1,0 +1,54 @@
+# ===========================================================================
+#  main_cylinder_vision600.mac -- the SAME cylinder phantom, on the
+#  Siemens Biograph Vision 600 instead of the four-panel scanner.
+#
+#  Identical to macros/main_cylinder.mac except that the geometry, physics and
+#  digitizer are the vision600 variants. The source macro is byte-identical
+#  (macros/source_cylinder.mac): r = 100 mm, half-length 200 mm, 2642 Bq/cm3
+#  -> 33.2 MBq, back-to-back 511 keV, centred at the origin.
+#
+#  Run from the panel_pet directory:
+#
+#    ../scripts/gate.sh \
+#        -a '[SEED,1][TSTART,0][DURATION,0.25][OUT,root/cyl_v600/x]' \
+#        macros/main_cylinder_vision600.mac
+#
+#  Required aliases: SEED, TSTART, DURATION, OUT.
+#
+#  AXIAL FOV CAVEAT. The Vision 600 spans z = +-130.4 mm; the phantom spans
+#  z = +-200 mm. So 35% of the phantom's length sits OUTSIDE the axial FOV,
+#  where it still emits and still contributes randoms and scatter but produces
+#  no true coincidences. The four-panel scanner (z = +-238 mm) contains the
+#  whole phantom, so the two acquisitions are NOT a like-for-like sensitivity
+#  comparison unless that overhang is accounted for. This is deliberate --
+#  "the exact same cylindrical source" was the requirement.
+#
+#  ID HIERARCHY differs from the panel scanner. vision600.mac attaches a
+#  cylindricalPET system, so the ROOT branches are rsectorID/moduleID/
+#  submoduleID/crystalID -- NOT the level1ID/level2ID the panel analysis
+#  scripts read. 760 crystals/ring x 80 rings = 60800.
+# ===========================================================================
+
+/control/execute macros/verbose.mac
+/control/execute macros/geometry_vision600.mac
+/control/execute macros/physics_vision600.mac
+
+/gate/run/initialize
+
+/control/execute macros/digitizer_vision600.mac
+/control/execute macros/source_cylinder.mac
+/control/execute macros/output.mac
+
+# ---------------------------------------------------------------------------
+#  A C Q U I S I T I O N
+# ---------------------------------------------------------------------------
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed {SEED}
+
+/control/add TSTOP {TSTART} {DURATION}
+/gate/application/setTimeSlice {DURATION} s
+/gate/application/setTimeStart {TSTART} s
+/gate/application/setTimeStop  {TSTOP} s
+
+/gate/application/startDAQ
+exit

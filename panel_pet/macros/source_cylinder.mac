@@ -1,0 +1,59 @@
+# ===========================================================================
+#  source_cylinder.mac -- uniform cylindrical source on the scanner axis
+#
+#  Specified by ACTIVITY CONCENTRATION, not total activity.
+#
+#  GATE's setActivity only accepts a total in Bq, so the macro derives it:
+#      V = pi * r^2 * L        A = concentration * V
+#  using Geant4's alias arithmetic (/control/multiply). Change the radius,
+#  the length or the concentration below and the total activity follows --
+#  nothing else needs editing, and the two can never fall out of step.
+#
+#  Defaults: diameter 20 cm, length 40 cm along z, centred on the origin,
+#  2.642 kBq/cm3  ->  V = 12,566.4 cm3, A = 33.20 MBq (0.897 mCi).
+#  (2.642 kBq/cm3 is the whole-body concentration of a 5 mCi injection in a
+#  70 L patient; this 12.57 L cylinder therefore holds 0.897 mCi, not 5 mCi.)
+# ===========================================================================
+
+# --------------------------- edit these three -----------------------------
+/control/alias R_CM    10.0        # radius, cm            (20 cm diameter)
+/control/alias L_CM    40.0        # length along z, cm
+/control/alias CONC    2642.0      # activity concentration, Bq/cm3
+# --------------------------------------------------------------------------
+
+# volume of the cylinder, cm3:  V = pi * r^2 * L
+/control/multiply R2     {R_CM} {R_CM}
+/control/multiply PIR2   {R2} 3.14159265358979
+/control/multiply VOL    {PIR2} {L_CM}
+
+# total activity, Bq:  A = concentration * V
+/control/multiply ACT    {CONC} {VOL}
+
+# GPS wants mm, and the HALF-length in z
+/control/multiply R_MM     {R_CM} 10.0
+/control/multiply HALFZ_MM {L_CM} 5.0
+
+/control/listAlias                 # prints VOL and ACT into the log
+
+/gate/source/addSource cylsrc
+
+/gate/source/cylsrc/setActivity {ACT} becquerel
+/gate/source/cylsrc/setType backtoback
+
+/gate/source/cylsrc/gps/particle gamma
+/gate/source/cylsrc/gps/ene/type Mono
+/gate/source/cylsrc/gps/ene/mono 0.511 MeV
+
+/gate/source/cylsrc/gps/type Volume
+/gate/source/cylsrc/gps/shape Cylinder
+/gate/source/cylsrc/gps/radius {R_MM} mm
+/gate/source/cylsrc/gps/halfz {HALFZ_MM} mm
+/gate/source/cylsrc/gps/centre 0. 0. 0. mm
+
+/gate/source/cylsrc/gps/angtype iso
+/gate/source/cylsrc/gps/mintheta 0. deg
+/gate/source/cylsrc/gps/maxtheta 180. deg
+/gate/source/cylsrc/gps/minphi 0. deg
+/gate/source/cylsrc/gps/maxphi 360. deg
+
+/gate/source/list

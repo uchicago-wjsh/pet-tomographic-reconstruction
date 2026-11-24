@@ -1,0 +1,30 @@
+# ===========================================================================
+#  main_sens_vision600.mac -- Vision 600 voxel-sensitivity production.
+#
+#  The Vision 600 counterpart of main.mac: the FOV-filling box source on the
+#  cylindricalPET geometry. Aliases: SEED, ACTIVITY, DURATION, OUT.
+#
+#    ../scripts/gate.sh \
+#        -a '[SEED,1][ACTIVITY,20000][DURATION,10][OUT,root/sens_v600/x]' \
+#        macros/main_sens_vision600.mac
+# ===========================================================================
+
+/control/execute macros/verbose.mac
+/control/execute macros/geometry_vision600.mac
+/control/execute macros/physics_vision600.mac
+
+/gate/run/initialize
+
+/control/execute macros/digitizer_vision600.mac
+/control/execute macros/source_fov_vision600.mac
+/control/execute macros/output.mac
+
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed {SEED}
+
+/gate/application/setTimeSlice {DURATION} s
+/gate/application/setTimeStart 0. s
+/gate/application/setTimeStop  {DURATION} s
+
+/gate/application/startDAQ
+exit

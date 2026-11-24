@@ -1,0 +1,60 @@
+# ===========================================================================
+#  main_point_center.mac -- single point source at the centre of the
+#  four-panel ("box") scanner, run for a FIXED number of emissions.
+#
+#  Geometry  : macros/geometry.mac    -- the 360-module box, 4x4x5 mm LYSO
+#  Source    : macros/source_point.mac -- back-to-back 511 keV at (0,0,0)
+#  Digitizer : macros/digitizer.mac   -- module readout, 10% energy FWHM,
+#                                        alpha=3 window, 10 ns coincidences,
+#                                        NO timeResolution (perfect clock),
+#                                        so the CTR is imposed in analysis.
+#  Output    : macros/output_hits.mac -- Hits + Singles + Coincidences.
+#              Hits are cheap at 1e6 emissions and let
+#              scripts/module_time.py rebuild the energy-weighted module
+#              time, which matters once a 40 ps CTR is imposed (see README).
+#
+#  Run from the panel_pet directory:
+#
+#    ../scripts/gate.sh -a '[SEED,1][NPRIM,1000000][OUT,root/point_center/point_1e6]' \
+#                       macros/main_point_center.mac
+#
+#  46 s and ~490 MB RSS for NPRIM = 1e6 on a caslake login node.
+#
+#  Required aliases:
+#    SEED   random engine seed (unsigned int, keep < 900000000)
+#    NPRIM  number of primary events = number of ANNIHILATIONS. The source
+#           is back-to-back, so each event emits TWO 511 keV gammas;
+#           NPRIM = 1e6 therefore means 1e6 annihilations / 2e6 gammas.
+#    OUT    output basename, e.g. root/point_center/point_1e6
+#
+#  Why setTotalNumberOfPrimaries and not activity x duration:
+#  it gives exactly NPRIM events instead of a Poisson draw around it. In
+#  this mode GATE ignores the source activity entirely
+#  (GateSourceMgr::GetNextSource) and spaces the events uniformly at
+#  (TimeStop - TimeStart)/NPRIM = 1 us apart, which is 100x the 10 ns
+#  coincidence window -- so this run contains no random coincidences at all.
+# ===========================================================================
+
+/control/execute macros/verbose.mac
+/control/execute macros/geometry.mac
+/control/execute macros/physics.mac
+
+/gate/run/initialize
+
+/control/execute macros/digitizer.mac
+/control/execute macros/source_point.mac
+/control/execute macros/output_hits.mac
+
+# ---------------------------------------------------------------------------
+#  A C Q U I S I T I O N
+# ---------------------------------------------------------------------------
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed {SEED}
+
+/gate/application/setTimeSlice 1. s
+/gate/application/setTimeStart 0. s
+/gate/application/setTimeStop  1. s
+/gate/application/setTotalNumberOfPrimaries {NPRIM}
+
+/gate/application/startDAQ
+exit

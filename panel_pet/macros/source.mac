@@ -1,0 +1,43 @@
+# ===========================================================================
+#  source.mac -- uniform activity filling the 40 x 40 x 40 cm FOV
+#
+#  Back-to-back 511 keV gamma pairs, no isotope modelled (no positron
+#  range, no acollinearity) as specified.
+#
+#  "Para" is GATE/GPS's parallelepiped; with all three shear angles at 0 it
+#  is an axis-aligned box. halfx/y/z = 200 mm gives exactly the 40 cm cube
+#  enclosed by the panels.
+#
+#  Activity and duration come from aliases so array tasks can vary them:
+#    ACTIVITY  Bq
+#    DURATION  s
+#  The emitted-annihilation count is not assumed from activity x duration;
+#  scripts/sensitivity.py reads the actual number GATE recorded.
+# ===========================================================================
+
+/gate/source/addSource fov
+/gate/source/fov/setActivity {ACTIVITY} becquerel
+/gate/source/fov/setType backtoback
+
+/gate/source/fov/gps/particle gamma
+/gate/source/fov/gps/ene/type Mono
+/gate/source/fov/gps/ene/mono 0.511 MeV
+
+/gate/source/fov/gps/type Volume
+/gate/source/fov/gps/shape Para
+/gate/source/fov/gps/halfx 200. mm
+/gate/source/fov/gps/halfy 200. mm
+/gate/source/fov/gps/halfz 200. mm
+/gate/source/fov/gps/paralp 0. deg
+/gate/source/fov/gps/parthe 0. deg
+/gate/source/fov/gps/parphi 0. deg
+/gate/source/fov/gps/centre 0. 0. 0. mm
+
+# isotropic emission over the full sphere
+/gate/source/fov/gps/angtype iso
+/gate/source/fov/gps/mintheta 0. deg
+/gate/source/fov/gps/maxtheta 180. deg
+/gate/source/fov/gps/minphi 0. deg
+/gate/source/fov/gps/maxphi 360. deg
+
+/gate/source/list

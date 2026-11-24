@@ -1,0 +1,49 @@
+# ===========================================================================
+#  source_fov_vision600.mac -- uniform box source filling the Vision 600 FOV.
+#
+#  The Vision 600 counterpart of source.mac. Same idea: fill the field of view
+#  with a uniform back-to-back source so that
+#
+#      sensitivity(voxel) = detected coincidences / emitted annihilations
+#
+#  can be measured per voxel from the KNOWN annihilation position.
+#
+#  FOV = a 256 mm CUBE (+-128 mm), not the panel scanner's 400 mm.
+#    * axially that is the ring itself: crystal centres span z = +-128.77 mm,
+#      so there is no sensitivity to measure beyond it;
+#    * transaxially +-128 mm comfortably contains the 224 mm reconstruction
+#      grid (+-112 mm), so the map covers every reconstructed voxel with no
+#      extrapolation.
+#  A cube is required because scripts/sensitivity.py bins the same half-width
+#  on all three axes (--fov sets the side).
+#
+#  ACTIVITY is an alias so the driver can trade activity against duration;
+#  keep it modest so randoms stay negligible (they are removed anyway by
+#  requiring eventID1 == eventID2, but they cost simulation time).
+# ===========================================================================
+
+/gate/source/addSource fov
+/gate/source/fov/setActivity {ACTIVITY} becquerel
+/gate/source/fov/setType backtoback
+
+/gate/source/fov/gps/particle gamma
+/gate/source/fov/gps/ene/type Mono
+/gate/source/fov/gps/ene/mono 0.511 MeV
+
+/gate/source/fov/gps/type Volume
+/gate/source/fov/gps/shape Para
+/gate/source/fov/gps/halfx 128. mm
+/gate/source/fov/gps/halfy 128. mm
+/gate/source/fov/gps/halfz 128. mm
+/gate/source/fov/gps/paralp 0. deg
+/gate/source/fov/gps/parthe 0. deg
+/gate/source/fov/gps/parphi 0. deg
+/gate/source/fov/gps/centre 0. 0. 0. mm
+
+/gate/source/fov/gps/angtype iso
+/gate/source/fov/gps/mintheta 0. deg
+/gate/source/fov/gps/maxtheta 180. deg
+/gate/source/fov/gps/minphi 0. deg
+/gate/source/fov/gps/maxphi 360. deg
+
+/gate/source/list

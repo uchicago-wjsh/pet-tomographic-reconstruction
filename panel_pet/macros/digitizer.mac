@@ -1,0 +1,60 @@
+# ===========================================================================
+#  digitizer.mac -- module-level readout
+#
+#  Chain:  hits -> adder -> readout -> energy resolution -> energy window
+#
+#  * adder    merges the hits deposited inside one crystal
+#  * readout  at depth 1 = level1 = module, so the reported energy is the
+#             SUM of everything deposited anywhere in the module, which is
+#             the required "measured event energy"
+#  * energyResolution  10% FWHM at 511 keV
+#  * energyFraming     the widest window needed (alpha = 3); the alpha = 1
+#             and alpha = 2 windows are applied afterwards in
+#             scripts/sensitivity.py, so one simulation serves all three
+#  * NO timeResolution module -> perfect electronics time resolution, so
+#             the event time can be resampled later for any CTR
+#
+#  Energy windows, from 10% resolution at 511 keV (sigma_E = 51.1 keV):
+#      alpha = 1 : [459.9, 562.1] keV
+#      alpha = 2 : [408.8, 613.2] keV
+#      alpha = 3 : [357.7, 664.3] keV   <-- applied here
+#
+#  CAVEAT on the event time. GATE 9.4.1 offers only two readout time
+#  policies and NEITHER is the energy-weighted time the task asks for:
+#      TakeEnergyWinner  -> earliest (minimum) contributing time
+#      TakeEnergyCentroid-> plain arithmetic mean of contributing times
+#  (verified in GateVDigitizerModule::CentroidMerge and GateReadout.cc).
+#  The energy-weighted module time is therefore computed in
+#  scripts/module_time.py from the Hits tree -- see that script and the
+#  README. It has no effect on the sensitivity results: interactions within
+#  one module are separated by at most a few tens of ps, against a 10 ns
+#  coincidence window.
+# ===========================================================================
+
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/insert adder
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/adder/positionPolicy energyWeightedCentroid
+
+# depth 1 = level1 = module -> energy summed over the whole module
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/insert readout
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/readout/setPolicy TakeEnergyWinner
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/readout/setDepth 1
+
+# 10% energy resolution at 511 keV
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/insert energyResolution
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/energyResolution/fwhm 0.10
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/energyResolution/energyOfReference 511. keV
+
+# widest energy window (alpha = 3); narrower ones applied in analysis
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/insert energyFraming
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/energyFraming/setMin 357.7 keV
+/gate/digitizerMgr/crystal/SinglesDigitizer/Singles/energyFraming/setMax 664.3 keV
+
+# ---------------------------------------------------------------------------
+#  C O I N C I D E N C E   S O R T E R
+#  10 ns comfortably covers the ~2.6 ns maximum time-of-flight difference
+#  across this geometry. Random coincidences are removed in analysis by
+#  requiring eventID1 == eventID2, so the window width does not bias the
+#  sensitivity.
+# ---------------------------------------------------------------------------
+/gate/digitizerMgr/CoincidenceSorter/Coincidences/setInputCollection Singles_crystal
+/gate/digitizerMgr/CoincidenceSorter/Coincidences/setWindow 10. ns

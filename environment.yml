@@ -1,0 +1,11 @@
+name: pet-reconstruction
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - parallelproj=1.10.2
+  - pip
+  - pip:
+      - pytomography==3.4.0
+      - torch==2.11.0
+      - uproot==5.7.5

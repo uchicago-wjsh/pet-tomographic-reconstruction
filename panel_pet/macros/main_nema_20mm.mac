@@ -1,0 +1,31 @@
+# ===========================================================================
+#  main_nema.mac -- NEMA IEC body phantom on the four-panel scanner.
+#
+#  Same structure as main_cylinder.mac with source_cylinder.mac swapped
+#  for source_nema.mac. Aliases: SEED, TSTART, DURATION, OUT.
+#
+#    ../scripts/gate.sh \
+#        -a '[SEED,1][TSTART,0][DURATION,1][OUT,root/nema/x]' \
+#        macros/main_nema.mac
+# ===========================================================================
+
+/control/execute macros/verbose.mac
+/control/execute macros/geometry_20mm.mac
+/control/execute macros/physics.mac
+
+/gate/run/initialize
+
+/control/execute macros/digitizer.mac
+/control/execute macros/source_nema.mac
+/control/execute macros/output.mac
+
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed {SEED}
+
+/control/add TSTOP {TSTART} {DURATION}
+/gate/application/setTimeSlice {DURATION} s
+/gate/application/setTimeStart {TSTART} s
+/gate/application/setTimeStop  {TSTOP} s
+
+/gate/application/startDAQ
+exit

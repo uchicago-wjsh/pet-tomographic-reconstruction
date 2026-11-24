@@ -1,0 +1,49 @@
+# ===========================================================================
+#  main.mac -- four-panel PET sensitivity simulation
+#
+#  Run from the panel_pet directory, e.g.
+#
+#    ../scripts/gate.sh -a '[SEED,1][ACTIVITY,20000][DURATION,5][OUT,output/run001]' \
+#                       macros/main.mac
+#
+#  Required aliases:
+#    SEED      random engine seed (unsigned int, keep < 900000000)
+#    TSTART    start of this time chunk, s
+#    DURATION  length of this time chunk, s
+#    OUT       output basename, e.g. output/cyl001
+#  The activity is NOT passed in -- source_cylinder.mac derives it from the
+#  concentration and the cylinder volume.
+#
+#  Emitted annihilations ~= ACTIVITY x DURATION. Keep ACTIVITY modest
+#  (~20 kBq) so random coincidences stay negligible; randoms are removed in
+#  analysis anyway by requiring eventID1 == eventID2.
+# ===========================================================================
+
+/control/execute macros/verbose.mac
+/control/execute macros/geometry.mac
+/control/execute macros/physics.mac
+
+/gate/run/initialize
+
+/control/execute macros/digitizer.mac
+/control/execute macros/source_cylinder.mac
+/control/execute macros/output.mac
+
+# ---------------------------------------------------------------------------
+#  A C Q U I S I T I O N
+# ---------------------------------------------------------------------------
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed {SEED}
+
+#  TSTART lets a long acquisition be split into consecutive time chunks, each
+#  its own GATE process (GATE's memory grows with the number of decays in ONE
+#  run). With a constant-activity source the chunks are statistically identical
+#  and the offset is cosmetic, but it keeps the event times globally correct
+#  and stays right if a half-life is ever enabled.
+/control/add TSTOP {TSTART} {DURATION}
+/gate/application/setTimeSlice {DURATION} s
+/gate/application/setTimeStart {TSTART} s
+/gate/application/setTimeStop  {TSTOP} s
+
+/gate/application/startDAQ
+exit

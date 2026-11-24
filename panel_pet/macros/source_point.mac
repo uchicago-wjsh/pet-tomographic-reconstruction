@@ -1,0 +1,23 @@
+# ===========================================================================
+#  source_point.mac -- 1 MBq point source at the origin
+#  Back-to-back 511 keV, exactly as the flat-panel sensitivity runs.
+# ===========================================================================
+/gate/source/addSource psrc
+
+/gate/source/psrc/setActivity 1000000. becquerel
+/gate/source/psrc/setType backtoback
+
+/gate/source/psrc/gps/particle gamma
+/gate/source/psrc/gps/ene/type Mono
+/gate/source/psrc/gps/ene/mono 0.511 MeV
+
+/gate/source/psrc/gps/type Point
+/gate/source/psrc/gps/centre 0. 0. 0. mm
+
+/gate/source/psrc/gps/angtype iso
+/gate/source/psrc/gps/mintheta 0. deg
+/gate/source/psrc/gps/maxtheta 180. deg
+/gate/source/psrc/gps/minphi 0. deg
+/gate/source/psrc/gps/maxphi 360. deg
+
+/gate/source/list

@@ -1,0 +1,41 @@
+# ===========================================================================
+#  main.mac -- four-panel PET sensitivity simulation
+#
+#  Run from the panel_pet directory, e.g.
+#
+#    ../scripts/gate.sh -a '[SEED,1][ACTIVITY,20000][DURATION,5][OUT,output/run001]' \
+#                       macros/main.mac
+#
+#  Required aliases:
+#    SEED      random engine seed (unsigned int, keep < 900000000)
+#    ACTIVITY  source activity in Bq
+#    DURATION  acquisition duration in s
+#    OUT       output basename, e.g. output/run001
+#
+#  Emitted annihilations ~= ACTIVITY x DURATION. Keep ACTIVITY modest
+#  (~20 kBq) so random coincidences stay negligible; randoms are removed in
+#  analysis anyway by requiring eventID1 == eventID2.
+# ===========================================================================
+
+/control/execute macros/verbose.mac
+/control/execute macros/geometry.mac
+/control/execute macros/physics.mac
+
+/gate/run/initialize
+
+/control/execute macros/digitizer.mac
+/control/execute macros/source.mac
+/control/execute macros/output.mac
+
+# ---------------------------------------------------------------------------
+#  A C Q U I S I T I O N
+# ---------------------------------------------------------------------------
+/gate/random/setEngineName MersenneTwister
+/gate/random/setEngineSeed {SEED}
+
+/gate/application/setTimeSlice {DURATION} s
+/gate/application/setTimeStart 0. s
+/gate/application/setTimeStop  {DURATION} s
+
+/gate/application/startDAQ
+exit
